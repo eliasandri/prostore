@@ -12,7 +12,7 @@ import { useSearchParams } from "next/navigation";
 
 const CredentialsSignInForm = () => {
   const [data, action] = useActionState(signInWithCredentials, {
-    succes: false,
+    success: false,
     message: "",
   });
 
@@ -31,7 +31,7 @@ const CredentialsSignInForm = () => {
 
   return (
     <form action={action}>
-      <input type="hidden" name="callbackUrl" value={callbackUrl}></input>
+      <input type="hidden" name="callbackUrl" value={callbackUrl} />
       <div className="space-y-6">
         <div>
           <Label htmlFor="email">Email</Label>
@@ -42,7 +42,7 @@ const CredentialsSignInForm = () => {
             required
             autoComplete="email"
             defaultValue={signInDefaultValues.email}
-          ></Input>
+          />
         </div>
         <div>
           <Label htmlFor="password">Password</Label>
@@ -52,14 +52,14 @@ const CredentialsSignInForm = () => {
             type="password"
             required
             autoComplete="password"
-            defaultValue={signInDefaultValues.email}
-          ></Input>
+            defaultValue={signInDefaultValues.password}
+          />
         </div>
         <div>
-          <SignInButton></SignInButton>
+          <SignInButton />
         </div>
 
-        {data && !data.succes && (
+        {data && !data.success && (
           <div className="text-center text-destructive">{data.message}</div>
         )}
 
