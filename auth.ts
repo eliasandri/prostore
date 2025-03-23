@@ -6,6 +6,7 @@ import { prisma } from '@/db/prisma';
 import { cookies } from 'next/headers';
 import { compare } from './lib/encrypt';
 import CredentialsProvider from 'next-auth/providers/credentials';
+console.log('NEXTAUTH_SECRET:', process.env.NEXTAUTH_SECRET);
 
 export const config = {
   pages: {
