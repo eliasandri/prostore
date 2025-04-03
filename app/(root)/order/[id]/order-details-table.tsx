@@ -42,7 +42,6 @@ const OrderDetailsTable = ({
   stripeClientSecret: string | null;
 }) => {
   const {
-    id,
     shippingAddress,
     orderitems,
     itemsPrice,

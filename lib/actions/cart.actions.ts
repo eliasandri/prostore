@@ -7,7 +7,6 @@ import { auth } from "@/auth";
 import { prisma } from "@/db/prisma";
 import { cartItemSchema, insertCartSchema } from "../validator";
 import { revalidatePath } from "next/cache";
-import { X } from "lucide-react";
 import { Prisma } from "@prisma/client";
 
 // Calculate cart prices
