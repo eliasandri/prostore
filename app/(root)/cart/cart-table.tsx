@@ -1,24 +1,81 @@
 "use client";
-
-import { Cart } from "@/types";
 import { useRouter } from "next/navigation";
 import { useTransition } from "react";
 import { addItemToCart, removeItemFromCart } from "@/lib/actions/cart.actions";
 import { ArrowRight, Loader, Minus, Plus } from "lucide-react";
+import { Cart, CartItem } from "@/types";
 import Link from "next/link";
 import Image from "next/image";
 import {
   Table,
   TableBody,
-  TableCell,
   TableHead,
   TableHeader,
   TableRow,
+  TableCell,
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import { toast } from "sonner";
-import { formatCurrency } from "@/lib/utils";
 import { Card, CardContent } from "@/components/ui/card";
+import { formatCurrency } from "@/lib/utils";
+import { toast } from "sonner";
+
+function AddButton({ item }: { item: CartItem }) {
+  const [isPending, startTransition] = useTransition();
+  return (
+    <Button
+      disabled={isPending}
+      variant="outline"
+      type="button"
+      onClick={() =>
+        startTransition(async () => {
+          const res = await addItemToCart(item);
+
+          if (!res.success) {
+            toast.error("Error!", {
+              description: res?.message,
+              className: "bg-red-600 text-white p-4 rounded-lg shadow-lg",
+            });
+          }
+        })
+      }
+    >
+      {isPending ? (
+        <Loader className="w-4 h-4 animate-spin" />
+      ) : (
+        <Plus className="w-4 h-4" />
+      )}
+    </Button>
+  );
+}
+
+function RemoveButton({ item }: { item: CartItem }) {
+  const [isPending, startTransition] = useTransition();
+  return (
+    <Button
+      disabled={isPending}
+      variant="outline"
+      type="button"
+      onClick={() =>
+        startTransition(async () => {
+          const res = await removeItemFromCart(item.productId);
+
+          if (!res.success) {
+            toast.error("Error!", {
+              description: res?.message,
+              className: "bg-red-600 text-white p-4 rounded-lg shadow-lg",
+            });
+          }
+        })
+      }
+    >
+      {isPending ? (
+        <Loader className="w-4 h-4 animate-spin" />
+      ) : (
+        <Minus className="w-4 h-4" />
+      )}
+    </Button>
+  );
+}
 
 const CartTable = ({ cart }: { cart?: Cart }) => {
   const router = useRouter();
@@ -32,7 +89,7 @@ const CartTable = ({ cart }: { cart?: Cart }) => {
           Cart is empty. <Link href="/">Go Shopping</Link>
         </div>
       ) : (
-        <div className="grid md:grid-cols-4 md:gap-5 ">
+        <div className="grid md:grid-cols-4 md:gap-5">
           <div className="overflow-x-auto md:col-span-3">
             <Table>
               <TableHeader>
@@ -55,58 +112,14 @@ const CartTable = ({ cart }: { cart?: Cart }) => {
                           alt={item.name}
                           width={50}
                           height={50}
-                        ></Image>
+                        />
                         <span className="px-2">{item.name}</span>
                       </Link>
                     </TableCell>
                     <TableCell className="flex-center gap-2">
-                      <Button
-                        disabled={isPending}
-                        variant="outline"
-                        type="button"
-                        onClick={() =>
-                          startTransition(async () => {
-                            const res = await removeItemFromCart(
-                              item.productId
-                            );
-
-                            if (!res.success) {
-                              toast.error(res.message, {
-                                duration: 3000,
-                              });
-                            }
-                          })
-                        }
-                      >
-                        {isPending ? (
-                          <Loader className="w-4 h-4 animate-spin"></Loader>
-                        ) : (
-                          <Minus className="w-4 h-4"></Minus>
-                        )}
-                      </Button>
+                      <RemoveButton item={item} />
                       <span>{item.qty}</span>
-                      <Button
-                        disabled={isPending}
-                        variant="outline"
-                        type="button"
-                        onClick={() =>
-                          startTransition(async () => {
-                            const res = await addItemToCart(item);
-
-                            if (!res.success) {
-                              toast.error(res.message, {
-                                duration: 3000,
-                              });
-                            }
-                          })
-                        }
-                      >
-                        {isPending ? (
-                          <Loader className="w-4 h-4 animate-spin"></Loader>
-                        ) : (
-                          <Plus className="w-4 h-4"></Plus>
-                        )}
-                      </Button>
+                      <AddButton item={item} />
                     </TableCell>
                     <TableCell className="text-right">${item.price}</TableCell>
                   </TableRow>
@@ -114,6 +127,7 @@ const CartTable = ({ cart }: { cart?: Cart }) => {
               </TableBody>
             </Table>
           </div>
+
           <Card>
             <CardContent className="p-4 gap-4">
               <div className="pb-3 text-xl">
@@ -126,15 +140,13 @@ const CartTable = ({ cart }: { cart?: Cart }) => {
                 className="w-full"
                 disabled={isPending}
                 onClick={() =>
-                  startTransition(() =>
-                    router.push("/shipping-address").then(() => {})
-                  )
+                  startTransition(() => router.push("/shipping-address"))
                 }
               >
                 {isPending ? (
-                  <Loader className="w-4 h-4 animate-spin"></Loader>
+                  <Loader className="w-4 h-4 animate-spin" />
                 ) : (
-                  <ArrowRight className="w-4 h-4"></ArrowRight>
+                  <ArrowRight className="w-4 h-4" />
                 )}{" "}
                 Proceed to Checkout
               </Button>
