@@ -135,11 +135,11 @@ export async function createPayPalOrder(orderId: string) {
 }
 
 // Approve paypal order and update order to paid
-export async function approvePayPalOrder(orderID: string, data: { orderID: string }) {
+export async function approvePayPalOrder(orderId: string, data: { orderID: string }) {
     try {
         // Get order from database
         const order = await prisma.order.findFirst({
-            where: { id: orderID }
+            where: { id: orderId }
         });
 
         if (!order) throw new Error('Order not found');
@@ -152,7 +152,7 @@ export async function approvePayPalOrder(orderID: string, data: { orderID: strin
 
         // Update to order paid
         await updateOrderToPaid({
-            orderID,
+            orderId,
             paymentResult: {
                 id: captureData.id,
                 status: captureData.status,
@@ -161,7 +161,7 @@ export async function approvePayPalOrder(orderID: string, data: { orderID: strin
             }
         })
 
-        revalidatePath(`/order/${orderID}`);
+        revalidatePath(`/order/${orderId}`);
 
         return {
             succes: true,
@@ -174,15 +174,15 @@ export async function approvePayPalOrder(orderID: string, data: { orderID: strin
 
 // Update order to paid
 export async function updateOrderToPaid({
-    orderID,
+    orderId,
     paymentResult
 }: {
-    orderID: string,
+    orderId: string,
     paymentResult?: PaymentResult
 }) {
     // Get order from database
     const order = await prisma.order.findFirst({
-        where: { id: orderID },
+        where: { id: orderId },
         include: {
             orderitems: true
         }
@@ -204,7 +204,7 @@ export async function updateOrderToPaid({
 
         // Set the order to paid
         await tx.order.update({
-            where: { id: orderID },
+            where: { id: orderId },
             data: {
                 isPaid: true,
                 paidAt: new Date(),
@@ -215,7 +215,7 @@ export async function updateOrderToPaid({
 
     // Get updated order after transaction
     const updatedOrder = await prisma.order.findFirst({
-        where: { id: orderID },
+        where: { id: orderId },
         include: {
             orderitems: true,
             user: { select: { name: true, email: true } }
@@ -351,11 +351,11 @@ export async function deleteOrder(id: string) {
 }
 
 // update COD order to paid
-export async function updateOrderToPaidCOD(orderID: string) {
+export async function updateOrderToPaidCOD(orderId: string) {
     try {
-        await updateOrderToPaid({orderID});
+        await updateOrderToPaid({orderId});
 
-        revalidatePath(`/order/${orderID}`)
+        revalidatePath(`/order/${orderId}`)
 
         return {success: true, message: 'Order marked as paid'}
     } catch (error) {

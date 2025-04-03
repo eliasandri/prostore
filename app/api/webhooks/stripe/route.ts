@@ -17,7 +17,7 @@ export async function POST(req: NextRequest) {
 
         // Update order status
         await updateOrderToPaid({
-            orderID: object.metadata.orderId,
+            orderId: object.metadata.orderId,
             paymentResult: {
                 id: object.id,
                 status: 'COMPLETED',
